@@ -1,4 +1,4 @@
-import sys, re, functools
+import re
 
 use_test_data = False
 lines = [line.rstrip('\n') for line in open('mini.txt' if use_test_data else 'input.txt')]
