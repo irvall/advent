@@ -1,83 +1,76 @@
 from collections import defaultdict
+from ordered_enum import OrderedEnum
 lines = [line.rstrip().split() for line in open('mini.txt', 'r').readlines()]
 suits = ['T', 'Q', 'K', 'A']
-cards = ['*', 'J'] + list(str(_) for _ in range(2,10)) + suits
-five_kind = 0
-four_kind = 1
-full_house = 2
-three_kind = 3
-two_pair = 4
-one_pair = 5
-high_card = 6
+cards = ['J'] + list(str(_) for _ in range(2,10)) + suits
 
-hands = {}
-hand_bids = []
-
-def type_of(hand):
-    current_hand = defaultdict(int)
+def freq(hand):
+    freq = defaultdict(int)
     for card in hand:
-        current_hand[card] += 1
-    type = None
-    for card,freq in current_hand.items():
-        if freq == 5:
-            type = five_kind
-            break
-        elif freq == 4:
-            type = four_kind
-            break
-        elif freq == 3:
-            type = full_house if len(current_hand) == 2 else three_kind
-            break
-        elif freq == 2:
-            type = two_pair if len(current_hand) == 3 else one_pair
-            type = full_house if len(current_hand) == 2 else type
-            break
-        else: type = high_card
-    assert type != None
-    return type
+        freq[card] += 1
+    return freq
 
-for hand, bid in lines:
-    group = []
-    group.append((hand,bid))
-    if 'J' in hand: 
-        new_hand = hand.replace('J', '*')
-        group.append((new_hand, bid))
-    print(group)
-    best_type = type_of(hand)
-    best_entry = (hand,)
-    if best_type in hands:
-        hands[best_type].append(best_entry)
-    else:
-        hands[best_type] = [best_entry]
+class HandType(OrderedEnum):
+    HighCard = 0,
+    OnePair = 1,
+    TwoPair = 2,
+    ThreeKind = 3,
+    FullHouse = 4,
+    FourKind  = 5,
+    FiveKind = 6
+
+def get_type(hand) -> HandType:
+    dist = freq(hand)
+    n = len(dist)
+    if n == len(hand):
+        return HandType.HighCard
+    if n == 1:
+        return HandType.FiveKind
+    freqs = set(dist.values())
+    if n == 2:
+        if 3 in freqs: return HandType.FullHouse
+        if 4 in freqs: return HandType.FourKind
+    if n == 3:
+        if 3 in freqs: return HandType.ThreeKind
+        return HandType.TwoPair
+    return HandType.OnePair
 
 def custom_lex_order(char): 
     return cards.index(char)
 
-def custom_sort(s):
-    order_values = tuple(custom_lex_order(char) for char in s)
+def custom_sort(tup):
+    _, original_hand = tup
+    order_values = tuple(custom_lex_order(char) for char in original_hand)
     return order_values
 
-hands = sorted(list(hands.items()), reverse=True)
-ans = 0
+def get_variations(hand):
+    res = [(hand,hand)]
+    for suit in cards:
+        if suit == 'J': continue
+        new_hand = hand.replace('J', suit)
+        res.append((new_hand, hand))
+    return res
+
+hands = defaultdict(list)
+for original_hand, bet in lines:
+    best_type = HandType.HighCard
+    best_hand = original_hand
+    new_hands = get_variations(original_hand)
+    for hand in new_hands:
+        type = get_type(hand)
+        if type > best_type:
+            best_type = type
+            best_hand = hand
+    hands[best_type].append(((best_hand, original_hand), int(bet)))
+
+hands = sorted(hands.items(), key=lambda tup: tup[0])
+print(hands)
 rank = 1
-
-def heads(xs):
-    return [x for x,_ in xs]
-for k,v in hands:
-    vs = sorted(v, key=lambda x: custom_sort(x[0]), reverse=False)
-    for hand,bid in vs:
-        ans += rank*bid
+ans = 0
+for type, hands in hands:
+    print(type, hands)
+    new_hands = sorted(hands, key=lambda x: custom_sort(x[0]), reverse=False)
+    for hand, bet in new_hands:
+        ans += rank * bet
         rank += 1
-
-# 6440
-# pt2 5905
 print(ans)
-
-            
-
-            
-# too high pt2
-251924230
-251929880
-251929880
-251949996
