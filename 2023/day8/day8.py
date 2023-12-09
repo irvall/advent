@@ -1,5 +1,4 @@
-import math
-import functools
+import math, functools
 
 lr, nodes = open('input.txt', 'r').read().split('\n\n')
 indices = [0 if d == 'L' else 1 for d in lr]
