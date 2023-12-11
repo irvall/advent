@@ -29,6 +29,3 @@ for row in nums:
     p2 += seqs[0][0]
 
 print(p1, p2)
-
-
-

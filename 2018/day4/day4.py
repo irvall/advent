@@ -1,6 +1,7 @@
 import sys, re
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
+from typing import List, Tuple
 
 use_test = False
 if len(sys.argv) > 1:
@@ -19,41 +20,61 @@ date_format = "%Y-%m-%d %H:%M"
 
 
 guard_reg = re.compile(r'Guard #(\d+) begins shift')
-guards = defaultdict(list)
+guards = defaultdict(list[Tuple[datetime, bool]])
 dates_cmd = [(line[1:17], line[19:]) for line in lines]
-id = -1
 for date, cmd in dates_cmd:
     if 'Guard' in cmd:
         id,*_ = guard_reg.match(cmd).groups()
         continue
 
     parsed_date = datetime.strptime(date, date_format)
-    guards[id].append((parsed_date, True if 'asleep' in cmd else False))
+    asleep = False if 'asleep' not in cmd or 'begins' in cmd else True
+    guards[id].append((parsed_date, asleep))
 
 for k,v in guards.items():
-    v.sort(key=lambda tup: tup[0])
+    print()
+    print(v)
+    v = sorted(v, key=lambda tup: tup[0])
+    print(v)
+    guards[k] = v
 
-def guard_sleeps(dates):
-    ans = 0
-    sleeping = False
-    last_timestamp = None
-    for date, asleep in dates:
-        sleeping = asleep
-        if not last_timestamp:
-            last_timestamp = date
-        span = date - last_timestamp
-        if span.total_seconds() > 80000:
-            continue
-        if not asleep:
-            ans += span.total_seconds() / 60
-    return ans
-    
-    
-
-
-
-
+one_minute = timedelta(minutes=1)
+most_minutes = -sys.maxsize 
+guards_sleep = {}
 for k,v in guards.items():
-    print(k,v)
-    print(guard_sleeps(v))
-# todo sort by timestamp
+    prev: datetime = None
+    minutes = defaultdict(int)
+    minutes_asleep = 0
+    for time,asleep in v:
+        if not prev: prev = time
+        if not asleep and prev:
+            while prev < time:
+                minutes[prev.minute] += 1
+                minutes_asleep += 1
+                prev += one_minute
+        prev = time
+    if minutes_asleep >= most_minutes:
+        most_minutes = minutes_asleep
+    
+    guards_sleep[int(k)] = (minutes_asleep, minutes)
+
+guard_sleep = sorted(list(guards_sleep.items()), key=lambda tup: tup[1][0], reverse=True)[0]
+id, minutes = guard_sleep
+print(id, minutes)
+minute,_ = sorted(minutes[1].items(), key=lambda tup: tup[1], reverse=True)[0]
+print(minute*id)
+
+# too high
+40712
+48524
+
+
+
+
+
+
+
+
+
+
+        
