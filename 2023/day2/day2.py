@@ -8,7 +8,6 @@ Game 1: 9 red, 5 blue, 6 green; 6 red, 13 blue; 2
 """
 
 def part_one():
-    ans = 0
     possible_games = []
     for line in lines:
         game, cubes = line.split(':')

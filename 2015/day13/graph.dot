@@ -1,0 +1,8 @@
+graph G {
+    Alice -- Bob [label="137"];
+    Bob -- Carol [label="53"];
+    Bob -- David [label="-70"];
+    Alice -- Carol [label="-141"];
+    Alice -- David [label="44"];
+    Carol -- David [label="96"];
+}

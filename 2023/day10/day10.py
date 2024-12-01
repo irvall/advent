@@ -1,56 +1,111 @@
-from collections import defaultdict, deque
-import sys
-lines = [list(_.rstrip()) for _ in open('tricky.txt', 'r').readlines()]
+import collections
+lines = [_.rstrip() for _ in open('tricky1.txt', 'r').readlines()]
+"""
+| is a vertical pipe connecting north and south.
+- is a horizontal pipe connecting east and west.
+L is a 90-degree bend connecting north and east.
+J is a 90-degree bend connecting north and west.
+7 is a 90-degree bend connecting south and west.
+F is a 90-degree bend connecting south and east.
+. is ground; there is no pipe in this tile.
+S is the starting position of the animal; there is a pipe on this tile, but your sketch doesn't show what shape the pipe has.
+"""
+y, x = 0, 0
+maxx, maxy = len(lines[0]), len(lines)
+for j in range(maxy):
+    for i in range(maxx):
+        ch = lines[j][i]
+        if ch == 'S': y, x = j, i
+T = True
+F = False
+
+southbound = {'|', 'F', '7', 'S'}
+eastbound  = {'-', 'L', 'F', 'S'}
+northbound = {'|', 'L', 'J', 'S'}
+westbound  = {'-', 'J', '7', 'S'}
+
+def find_loop(y, x):
+    q = collections.deque()
+    q.append((y,x, 0))
+    seen = {}
+    dist = 0
+    while q:
+        y, x, d = q.popleft()
+        dist = max(d, dist)
+        if (y,x) not in seen:
+            seen[(y,x)] = dist
+        pipe = lines[y][x]
+        ds = [(1,0,0), (0,1, 1), (-1, 0, 2), (0, -1, 3)]
+        for sj,si,c in ds:
+            j, i = y+sj, x+si
+            if not (0 <= j < maxy and 0 <= i < maxx) or (j,i) in seen:
+                continue
+            next = lines[j][i]
+            tup = (j,i,d+1)
+            if c == 0 and pipe   in southbound and next in northbound: # next is south
+                q.append(tup)
+            elif c == 1 and pipe in eastbound  and next in westbound: # next is east
+                q.append(tup)
+            elif c == 2 and pipe in northbound and next in southbound: # next is north
+                q.append(tup)
+            elif c == 3 and pipe in westbound  and next in eastbound: # next is west 
+                q.append(tup)
+    print('dist', dist)
+    return seen
+
+# 0 if not enclosed
+def enclosed(y, x):
+    q = collections.deque()
+    q.append((y,x))
+    seen = set()
+    while q:
+        y, x = q.popleft()
+        if     y == 0 or y == maxy - 1 \
+            or x == 0 or x == maxx - 1:
+            return 0
+            
+        seen.add((y,x))
+        current = lines[y][x]
+        ds = [(1,0), (0,1), (-1, 0), (0, -1)]
+        for sj,si in ds:
+            j, i = y+sj, x+si
+            if not (0 <= j < maxy and 0 <= i < maxx) or (j,i) in seen:
+                continue
+            next = lines[j][i]
+            tup = (j,i)
+            
+    print('dist', dist)
+    return seen
 
 
 
-x, y = 0, -1
-s_found = False
-max_x, max_y = len(lines[0]), len(lines)
-class Node:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.north = None
-        self.south = None
-        self.east  = None
-        self.west  = None
+the_loop = find_loop(y,x)
 
-    def __repr__(self) -> str:
-        sb = f'\nNode({self.x}, {self.y})'
-        sb += f'\nnorth: {self.north}'
-        sb += f'\nsouth: {self.south}'
-        sb += f'\neast: {self.east}'
-        sb += f'\nwest: {self.west}\n'
-        return sb
+for y in range(maxy):
+    for x in range(maxx):
+        if (y,x) in the_loop:
+            print(f'{the_loop[(y,x)]}'.ljust(4), end='')
+        else: print(lines[y][x].ljust(4), end='')
+    print()
 
-    def adj(self):
-        return [self.north, self.south, self.east, self.west]
 
-start = None
-g = {}
-for y in range(max_y):
-    for x in range(max_x):
-        if lines[y][x] == '.': continue
-        nd = Node(x,y)
-        ns = [(min(x+1,max_x-1),y), (max(x-1,0),y), (x,min(y+1, max_y-1)), (x,max(y-1, 0))]
-        for i, j in ns:
-            if (i,j) == (x,y) or lines[j][i] == '.': continue
-            nb = (j,i)
-            if lines[j][i] == 'S':
-                start = nb
-            if lines[j][i] == '|' and x == i:
-                (nd.south if y < j else nd.north).append(nb)
-            elif lines[j][i] == '-' and y == j:
-                (nd.east if x < i else nd.west).append(nb)
-            elif lines[j][i] == 'L' and (y == j and x > i) or (x == i and y < j):
-                (nd.west if y == j else nd.south).append(nb)
-            elif lines[j][i] == 'J' and (y == j and x < i) or (x == i and y < j):
-                (nd.east if y == j else nd.south).append(nb)
-            elif lines[j][i] == '7' and (y == j and x < i) or (x == i and y > j):
-                (nd.east if y == j else nd.north).append(nb)
-            elif lines[j][i] == 'F' and (y == j and x > i) or (x == i and y > j):
-                (nd.west if y == j else nd.north).append(nb)
-        g[(y,x)] = nd
 
-print(g)
+
+seen = set()
+for y in range(maxy):
+    for x in range(maxx):
+        if lines[y][x] != '.' or (y,x) in seen:
+            continue
+
+
+            
+
+
+
+
+
+
+
+
+
+            
