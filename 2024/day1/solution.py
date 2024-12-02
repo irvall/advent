@@ -1,6 +1,5 @@
 from collections import defaultdict
 import sys
-from whatthepatch import apply
 
 use_test = len(sys.argv) > 1
 file_to_read = 'mini.txt' if use_test else 'input.txt'
