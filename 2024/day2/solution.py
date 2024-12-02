@@ -1,6 +1,4 @@
 import sys
-from functools import reduce
-
 
 use_test = len(sys.argv) > 1
 file_to_read = 'mini.txt' if use_test else 'input.txt'
