@@ -1,5 +1,6 @@
 from collections import defaultdict
 import sys
+from whatthepatch import apply
 
 use_test = len(sys.argv) > 1
 file_to_read = 'mini.txt' if use_test else 'input.txt'
@@ -13,7 +14,7 @@ for line in lines:
     ls.append(left)
     rs.append(right)
     freq[right] += 1
-    
+
 dist = sum(abs(a-b) for a,b in zip(sorted(ls), sorted(rs)))
 print(dist)
 
