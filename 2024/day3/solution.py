@@ -6,12 +6,10 @@ lines = [line.rstrip() for line in open(file_to_read, 'r').readlines()]
 ans = 0
 enable = True
 for line in lines:
-    muls = re.findall(r'((don\'t|do)\(\))|(mul\(\d*,\d*\))', line)
-    for (d,_,m) in muls:
+    matches = re.findall(r'((don\'t|do)\(\))|mul\((\d+),(\d+)\)', line)
+    for (d, m, d1, d2) in matches: 
         if d: enable = d == 'do()'
-        elif enable and m:
-            m = m.replace('mul(', '')
-            m = m.replace(')', '')
-            a,b = (int(x) for x in m.split(','))
+        elif enable and d1:
+            a,b = int(d1), int(d2)
             ans += (a*b)
 print(ans)
