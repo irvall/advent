@@ -12,8 +12,7 @@ def on_edge(y,x):
 
 directions = [(j,i) for j in range(-1,2) for i in range(-1,2)]
 D = [[(dy*i, dx*i) for i in range(1, 4)] for dy, dx in directions]
-
-ans = 0
+p1, p2 = 0, 0
 for j in range(len(L)):
     for i in range(len(L[0])):
         if L[j][i] != 'X': continue
@@ -24,9 +23,7 @@ for j in range(len(L)):
                 if not inside(y,x): break
                 if q[-1] == L[y][x]:
                     q.pop()
-            ans += 1 if not q else 0
-print(ans)
-p2 = 0
+            p1 += 1 if not q else 0
 for j in range(len(L)):
     for i in range(len(L[0])):
         if on_edge(j,i) or L[j][i] != 'A': continue
@@ -36,5 +33,4 @@ for j in range(len(L)):
         if (UL == 'M' and LR == 'S' or UL == 'S' and LR == 'M') and\
            (LL == 'M' and UR == 'S' or LL == 'S' and UR == 'M'):
                p2 += 1 
-print(p2)
-           
+print(p1, p2)
