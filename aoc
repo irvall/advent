@@ -1,0 +1,45 @@
+#!/opt/homebrew/bin/python3
+import os, sys, time, datetime
+
+session = os.environ.get('AOC_SESSION')
+aoc_base_url = 'https://adventofcode.com'
+home_dir = os.environ.get('HOME')
+
+def form_url(*args):
+    # Strip trailing slashes from arguments
+    stringified_args = [str(arg).rstrip('/') for arg in args]
+    return '/'.join(stringified_args)
+
+if not session:
+    print('No AOC session key found; export AOC_SESSION=<session key> in your shell config')
+    sys.exit(1)
+
+cwd = os.getcwd()
+dirname = os.path.basename(cwd)
+year = int(dirname) if dirname.isdigit() else datetime.now().year
+day = int(sys.argv[1])
+day_url = form_url(aoc_base_url, year, 'day', day)
+input_url = form_url(day_url, 'input')
+template_file_path = form_url(home_dir, 'bin', '_aoctemplate.py')
+
+day_dir = os.path.join(cwd, f'day{day}')
+if not os.path.exists(day_dir):
+    os.mkdir(day_dir)
+os.chdir(day_dir)
+if not os.path.exists('input.txt'):
+    os.system(f'curl -H "Cookie: session={session}" {input_url} > input.txt')
+if not os.path.exists('mini.txt'):
+    open('mini.txt', 'w')
+
+solution_file_path = os.path.join(day_dir, 'solution.py') 
+if not os.path.exists(solution_file_path):
+    with open(template_file_path, 'r') as source_file, open(solution_file_path, 'w') as destination_file:
+        # Read the content from the source file
+        content = source_file.read()
+        destination_file.write(content)
+    
+os.system(f'zed .')
+time.sleep(0.5)
+os.system(f'open {day_url}')
+print('daydir', day_dir)
+os.system(f'cd {day_dir}')
