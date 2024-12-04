@@ -27,7 +27,6 @@ for j in range(len(L)):
 for j in range(len(L)):
     for i in range(len(L[0])):
         if on_edge(j,i) or L[j][i] != 'A': continue
-        if L[j][i] != 'A': continue
         UL, LR = L[j-1][i-1], L[j+1][i+1]
         LL, UR = L[j+1][i-1], L[j-1][i+1]
         if (UL == 'M' and LR == 'S' or UL == 'S' and LR == 'M') and\
