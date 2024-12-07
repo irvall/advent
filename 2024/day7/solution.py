@@ -2,20 +2,19 @@ import sys
 lines = [x.rstrip() for x in open(sys.argv[1], 'r').readlines()]
 
 def solve(numbers, current, target):
-  if len(numbers) == 0:
-    return current == target
+  if current > target: return 0
+  if not numbers:
+    return target if current == target else 0
   head, *tail = numbers
   concat = int(str(current) + str(head))
-  add = solve(tail, current+head, target)
-  mul = solve(tail, current*head, target)
-  con = solve(tail, concat, target)
-  return add or mul or con
+  return solve(tail, current+head, target) or \
+    solve(tail, current*head, target) or \
+    solve(tail, concat, target)
 
 ans = 0
 for line in lines:
   target, numbers = line.split(':')
   targetNumber = int(target)
   numbers = [int(_) for _ in numbers.split()]
-  if solve(numbers, 0, targetNumber):
-    ans += targetNumber
+  ans += solve(numbers, 0, targetNumber)
 print(ans)
