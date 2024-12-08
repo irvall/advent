@@ -16,7 +16,6 @@ for y in range(len(lines)):
         if not lines[y][x].isalnum(): continue
         antenna = lines[y][x]
         for (oy,ox) in locations[antenna]:
-            if (y,x) == (oy,ox): continue
             dy, dx = oy-y, ox-x
             ty, tx = y, x
             while inside(ty,tx):
