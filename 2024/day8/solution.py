@@ -11,18 +11,18 @@ antinodes = set()
 def inside(y,x):
     return 0 <= y < len(lines) and 0 <= x < len(lines[0])
 
+def add_antinodes(y, x, dy, dx):
+    while inside(y, x):
+        antinodes.add((y,x))
+        y, x = y+dy, x+dx
+
 for y in range(len(lines)):
     for x in range(len(lines[y])):
         if not lines[y][x].isalnum(): continue
         antenna = lines[y][x]
         for (oy,ox) in locations[antenna]:
             dy, dx = oy-y, ox-x
-            ty, tx = y, x
-            while inside(ty,tx):
-                antinodes.add((ty,tx))
-                ty, tx = ty+dy, tx+dx
-            while inside(oy,ox):
-                antinodes.add((oy,ox))
-                oy, ox = oy-dy, ox-dx
+            add_antinodes(y, x, dy, dx)
+            add_antinodes(oy, ox, -dy, -dx)
         locations[antenna].append((y,x))
 print(len(antinodes))
