@@ -18,11 +18,9 @@ def make_stones(stone):
     return [stone * 2024]
 
 for i in range(75):
-    updates = defaultdict(int)
     for stone,freq in list(stones.items()):
         for ns in make_stones(stone):
             stones[ns] += freq
         stones[stone] -= freq
-    stones.update(updates)
         
 print(sum(stones.values()))
